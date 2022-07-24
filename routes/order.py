@@ -14,10 +14,10 @@ def get_root():
 @buyRoute.post("/user/buy")
 def buy_product(order: OrderSchema):
     try:
-        conn.execute(tableOrder.insert().values(total=order.total, date_purchase=order.date_purchase, user_id=order.user_id))
+        conn.execute(tableOrder.insert().values(total=float(order.total), date_purchase=order.date_purchase, user_id=order.user_id))
         order_id = conn.execute(tableOrder.select().order_by(tableOrder.c.id.desc()).limit(1)).first()[0]
-        for product in order.products:
-            conn.execute(tableOrderDetails.insert().values(order_id=order_id, saucer_id=product))
+        for product in order.products.split(","):
+            conn.execute(tableOrderDetails.insert().values(order_id=order_id, saucer_id=int(product)))
         return JSONResponse({"message": "Orden creada correctamente"}, status_code=200)
     except Exception as e:
         return JSONResponse({"Error": str(e)}, status_code=500)

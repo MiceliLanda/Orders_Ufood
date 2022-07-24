@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
 class OrderSchema(BaseModel):
-    total: float
+    total: str
     date_purchase: str
-    products: list
+    products: str
     user_id: int
 
 class OrderDetailSchema(BaseModel):
