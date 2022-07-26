@@ -8,11 +8,11 @@ from config.db import conn
 buyRoute = APIRouter()
 
 @buyRoute.get("/")
-def get_root():
+async def get_root():
     return {"message": ":)"}
 
 @buyRoute.post("/user/buy")
-def buy_product(order: OrderSchema):
+async def buy_product(order: OrderSchema):
     try:
         conn.execute(tableOrder.insert().values(total=float(order.total), date_purchase=order.date_purchase, user_id=order.user_id))
         order_id = conn.execute(tableOrder.select().order_by(tableOrder.c.id.desc()).limit(1)).first()[0]
@@ -25,7 +25,7 @@ def buy_product(order: OrderSchema):
 
 
 @buyRoute.get("/user/orders")
-def get_orders(user_id: int):
+async def get_orders(user_id: int):
     try:
         orders = conn.execute(select([tableOrder.c.id, tableOrder.c.total, tableOrder.c.date_purchase]).where(tableOrder.c.user_id == user_id)).fetchall()
         order_list = []
@@ -36,7 +36,7 @@ def get_orders(user_id: int):
         return JSONResponse({"Error": str(e)}, status_code=500)
 
 @buyRoute.get("/user/orders-details")
-def get_orders_detail(order_id: int):
+async def get_orders_detail(order_id: int):
     try:
         orders = conn.execute(select([tableOrder.c.id,tableSaucer.c.name,tableSaucer.c.price]).select_from(tableOrder.join(tableOrderDetails,tableOrder.c.id == tableOrderDetails.c.order_id).join(tableSaucer,tableSaucer.c.id == tableOrderDetails.c.saucer_id)).where(tableOrder.c.id == order_id)).fetchall()
         list_orders = [] 
